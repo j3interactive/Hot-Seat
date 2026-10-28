@@ -1,0 +1,20 @@
+{
+  "name": "metro-hot-seating",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Live hot seating map for the Metro floor",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "STORE=memory DEV_USER=admin node server/index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@azure/web-pubsub": "^1.1.4",
+    "express": "^4.21.2",
+    "mssql": "^11.0.1"
+  }
+}

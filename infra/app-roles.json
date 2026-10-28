@@ -1,0 +1,26 @@
+[
+  {
+    "allowedMemberTypes": [ "User" ],
+    "description": "Edit seats, blocks and settings; release any claim.",
+    "displayName": "Seating Admin",
+    "id": "7b2a0f1e-3c51-4a5b-9e2d-6f1c8a4d2b01",
+    "isEnabled": true,
+    "value": "Seating.Admin"
+  },
+  {
+    "allowedMemberTypes": [ "User" ],
+    "description": "Claim and release seats for agents; mark seats open or assigned.",
+    "displayName": "Seating Supervisor",
+    "id": "7b2a0f1e-3c51-4a5b-9e2d-6f1c8a4d2b02",
+    "isEnabled": true,
+    "value": "Seating.Supervisor"
+  },
+  {
+    "allowedMemberTypes": [ "User" ],
+    "description": "View the live seating map only.",
+    "displayName": "Seating Viewer",
+    "id": "7b2a0f1e-3c51-4a5b-9e2d-6f1c8a4d2b03",
+    "isEnabled": true,
+    "value": "Seating.Viewer"
+  }
+]

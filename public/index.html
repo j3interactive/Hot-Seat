@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metro Hot Seating</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div>
+      <div class="title-row">
+        <h1>Metro Floor · Hot Seating</h1>
+        <span id="live" class="pill pill-wait"><span class="dot"></span><span id="live-text">Connecting</span></span>
+      </div>
+      <div class="sub" id="sub">Loading…</div>
+    </div>
+    <div class="me" id="me"></div>
+  </header>
+
+  <nav class="days" id="days" aria-label="Day"></nav>
+  <section class="totals" id="totals" aria-label="Totals"></section>
+
+  <div class="layout">
+    <main class="main">
+      <div class="toolbar">
+        <div class="tabs" id="areas" role="tablist" aria-label="Area"></div>
+        <label class="check"><input type="checkbox" id="openOnly"> Highlight open seats only</label>
+      </div>
+      <div class="chips" id="sups" aria-label="Filter by supervisor"></div>
+      <div id="areaNote"></div>
+      <div class="mapbox"><div class="map" id="map" role="group"></div></div>
+      <div class="legend">
+        <span><i class="sw sw-open"></i>Open</span>
+        <span><i class="sw sw-claimed"></i>Claimed</span>
+        <span><i class="sw sw-assigned"></i>Assigned</span>
+        <span><i class="sw sw-desk"></i>Supervisor / trainer desk</span>
+        <span><i class="sw sw-note"></i>Has a seat note</span>
+        <span><i class="sw sw-window"></i>Window</span>
+      </div>
+    </main>
+    <aside class="side">
+      <section class="card" id="detail" aria-live="polite"></section>
+      <section class="card">
+        <div class="card-head"><h2 id="openTitle">Open</h2><span class="muted" id="openCount"></span></div>
+        <div class="list" id="openList"></div>
+      </section>
+      <section class="card">
+        <h2 id="claimsTitle">Claims</h2>
+        <div class="list" id="claimList"></div>
+      </section>
+    </aside>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

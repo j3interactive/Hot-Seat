@@ -53,6 +53,7 @@ CREATE TABLE dbo.SeatDay (
     OpenFromUtc     datetime2(0)   NULL,                      -- for early leaves / split shifts
     ClaimedForName  nvarchar(128)  NULL,
     ClaimedForUpn   nvarchar(256)  NULL,
+    ClaimedByName   nvarchar(128)  NULL,
     ClaimedByUpn    nvarchar(256)  NULL,
     ClaimedAtUtc    datetime2(0)   NULL,
     UpdatedAtUtc    datetime2(0)   NOT NULL CONSTRAINT DF_SeatDay_Updated DEFAULT (SYSUTCDATETIME()),

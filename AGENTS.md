@@ -34,8 +34,8 @@ buried in side columns (e.g. the D8 keyboard rule).
 
 Full detail: `docs/architecture.md`.
 
-- **Front end**: React (TypeScript) single-page app with an absolutely positioned floor map. Layout comes from `data/floor-layout.json` (served by the API from SQL), never hardcoded in components.
-- **API**: Azure Functions or an App Service API (TypeScript). All writes go through it. It enforces permissions, block rules and claim concurrency.
+- **Front end**: single-page app with an absolutely positioned floor map. Layout comes from `data/floor-layout.json` (served by `GET /api/layout`), never hardcoded. The pilot (`public/`) is dependency-free JavaScript; move to React + TypeScript when it grows past one screen.
+- **API**: Node.js + Express on App Service (`server/`). All writes go through it. It enforces permissions, block rules and claim concurrency.
 - **Real-time**: Azure Web PubSub. The API broadcasts a `seat.changed` event after every committed change; clients patch their local state. Clients never trust a push alone — on reconnect they refetch the day.
 - **Data**: Azure SQL (`db/schema.sql`).
 - **Auth**: App Service built-in auth with Entra ID. Enterprise app has "Assignment required"; app roles `Seating.Admin`, `Seating.Supervisor`, `Seating.Viewer`, plus `Seating.Automation` for the runbooks and worker.
@@ -45,6 +45,21 @@ Full detail: `docs/architecture.md`.
   - Nightly runbook: close out the day, archive events, reset claims.
 - **Secrets**: Key Vault + managed identities. No secrets in code, config files or this repo.
 - **Monitoring**: Application Insights.
+
+### Pilot shortcuts (fix before production)
+
+The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
+- Availability is sample data by weekday (`server/sample.js`) plus manual "Mark open / assigned". Replaced by the WFM sync (phase 4).
+- The Web PubSub connection string and the Entra client secret are App Service settings, not Key Vault references. No Key Vault yet.
+- The app's managed identity is `db_ddladmin` so it can create the schema on first start. Drop to reader/writer and run migrations from the pipeline instead.
+- Web PubSub is the Free tier (20 connections, no SLA).
+- No blocks UI yet; `Block` table exists but is unused.
+
+## Running and deploying
+
+- Local: `npm install && npm run dev` → http://localhost:8080 with an in-memory store and a fake admin user (`DEV_USER`). Headers `x-dev-user` / `x-dev-role` let you simulate other users. `DEV_USER` is ignored on App Service.
+- Azure (dev): in Cloud Shell, clone the repo and run `./infra/deploy.sh`. It creates the app registration and roles, deploys `infra/main.bicep` to `rg-metroseating-dev`, grants the managed identity database access (`tools/sql-grant.js`) and zip-deploys the code. Safe to re-run; re-running is also how you ship code changes for now.
+- Users get access by being assigned a role on the "Metro Hot Seating (dev)" enterprise app. Unassigned users cannot sign in.
 
 ## Domain rules (the app must enforce these)
 
@@ -78,10 +93,16 @@ Full detail: `docs/architecture.md`.
 AGENTS.md                  this file
 CLAUDE.md                  points agents here
 README.md                  human overview and quick start
+server/                    Express API: index (routes), auth (Easy Auth claims), store-sql / store-memory, realtime (Web PubSub), sample (pilot data)
+public/                    front end: index.html, app.js, styles.css
+infra/main.bicep           Azure resources for one environment
+infra/deploy.sh            end-to-end deploy from Cloud Shell
+infra/app-roles.json       Entra app roles (IDs are fixed; never change them)
 data/floor-layout.json     areas, pods, seat grid, landmarks (source of truth for geometry)
-db/schema.sql              Azure SQL schema
-db/seed.sql                generated from floor-layout.json
+db/schema.sql              Azure SQL schema (the app applies it on first start)
+db/seed.sql                generated from floor-layout.json (for manual loads; the app seeds itself)
 tools/build_seed.py        generator for db/seed.sql
+tools/sql-grant.js         grants the managed identity database access
 docs/architecture.md       components, flows, diagram
 docs/automation.md         availability signals and state logic
 docs/data-model.md         tables, statuses, claim concurrency
@@ -93,7 +114,7 @@ mockup/README.md           where the interactive mockup lives
 
 ## Current status
 
-See `docs/roadmap.md`. As of 2026-10-28: design approved in principle, interactive mockup built, nothing deployed. Next step: Phase 1 (database and seed).
+See `docs/roadmap.md`. As of 2026-10-28: pilot app built (map, claims, roles, real-time) and being deployed to a dev environment in the fte.emovisops.com tenant. Next: supervisor feedback, then the Genesys WFM sync (phase 4).
 
 ## Before you finish any change
 
