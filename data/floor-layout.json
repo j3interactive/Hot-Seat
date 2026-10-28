@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "source": "NEW Metro Seating Chart 5.27.26.xlsx (Floor, Wescalations, Nesting, The Academy tabs)",
+  "comment": "Geometry only. No employee data. Pod 'supervisor' values are floor labels; real ownership is by Entra object ID in SQL. Coordinates are px on each area's canvas. Seat position = pod.x + 8 + col*grid.sx, pod.y + 34 + row*grid.sy.",
+  "grids": {
+    "main": { "sx": 38, "sy": 32, "w": 34, "h": 28 },
+    "room": { "sx": 58, "sy": 46, "w": 52, "h": 36 },
+    "nest": { "sx": 50, "sy": 44, "w": 44, "h": 34 }
+  },
+  "seatNotes": {
+    "D8": "If seating someone at D8, remove the special keyboard and make sure the agent uses a regular keyboard."
+  },
+  "areas": [
+    {
+      "id": "main",
+      "name": "Main Floor",
+      "width": 1000,
+      "height": 900,
+      "grid": "main",
+      "note": null,
+      "pods": [
+        { "id": "A1", "label": "A1–A14", "supervisor": "Nicole B.", "x": 12, "y": 40, "desks": [],
+          "rows": [["A7","A8"],["A6","A9"],["A5","A10"],["A4","A11"],["A3","A12"],["A2","A13"],["A1","A14"]] },
+        { "id": "A15", "label": "A15–A27", "supervisor": "Nicole B.", "x": 124, "y": 40, "desks": ["A21"],
+          "rows": [["A15","A22"],["A16","A23"],["A17","A24"],["A18","A25"],["A19","A26"],["A20","A27"],["A21",null]] },
+        { "id": "A28", "label": "A28–A41", "supervisor": "Diavian W.", "x": 236, "y": 40, "desks": [],
+          "rows": [["A28","A35"],["A29","A36"],["A30","A37"],["A31","A38"],["A32","A39"],["A33","A40"],["A34","A41"]] },
+        { "id": "B1", "label": "B1–B13", "supervisor": "Johanna D.", "x": 364, "y": 40, "desks": ["B13"],
+          "rows": [["B6","B7"],["B5","B8"],["B4","B9"],["B3","B10"],["B2","B11"],["B1","B12"],["B13",null]] },
+        { "id": "B14", "label": "B14–B27", "supervisor": "Johanna D.", "x": 476, "y": 40, "desks": [],
+          "rows": [["B20","B21"],["B19","B22"],["B18","B23"],["B17","B24"],["B16","B25"],["B15","B26"],["B14","B27"]] },
+        { "id": "C1", "label": "C1–C13", "supervisor": "Anisha", "x": 604, "y": 40, "desks": ["C13"],
+          "rows": [["C6","C7"],["C5","C8"],["C4","C9"],["C3","C10"],["C2","C11"],["C1","C12"],["C13",null]] },
+        { "id": "C14", "label": "C14–C27", "supervisor": "Anisha", "x": 716, "y": 40, "desks": [],
+          "rows": [["C14","C27"],["C15","C26"],["C16","C25"],["C17","C24"],["C18","C23"],["C19","C22"],["C20","C21"]] },
+        { "id": "D1", "label": "D1–D9", "supervisor": "Karen G.", "x": 844, "y": 40, "desks": ["D9"],
+          "rows": [["D4","D5"],["D3","D6"],["D2","D7"],["D1","D8"],["D9",null]] },
+        { "id": "H1", "label": "H1–H3", "supervisor": "Ops / QA", "x": 92, "y": 360, "desks": [], "seatType": "Ops",
+          "rows": [["H1","H3"],["H2",null]] },
+        { "id": "G1", "label": "G1–G15", "supervisor": "Bryan S.", "x": 196, "y": 360, "desks": ["G15"],
+          "rows": [["G15","G1","G2","G3","G4","G5","G6","G7"],[null,"G14","G13","G12","G11","G10","G9","G8"]] },
+        { "id": "G16", "label": "G16–G30", "supervisor": "Davonte R.", "x": 196, "y": 470, "desks": ["G30"],
+          "rows": [["G30","G16","G17","G18","G19","G20","G21","G22"],[null,"G29","G28","G27","G26","G25","G24","G23"]] },
+        { "id": "D18", "label": "D18–D23", "supervisor": "Kim B.", "x": 556, "y": 360, "desks": [],
+          "rows": [["D23","D22","D21"],["D20","D19","D18"]] },
+        { "id": "E16", "label": "E16–E21", "supervisor": "Reisha", "x": 556, "y": 470, "desks": [],
+          "rows": [["E18","E17","E16"],["E19","E20","E21"]] },
+        { "id": "D10", "label": "D10–D17", "supervisor": "Kim B.", "x": 820, "y": 340, "desks": [],
+          "rows": [["D13","D12","D11","D10"],["D14","D15","D16","D17"]] },
+        { "id": "E1", "label": "E1–E7", "supervisor": "Reisha", "x": 820, "y": 450, "desks": ["E7"],
+          "rows": [["E7","E1","E2","E3"],[null,"E6","E5","E4"]] },
+        { "id": "E8", "label": "E8–E15", "supervisor": "Reisha", "x": 820, "y": 560, "desks": [],
+          "rows": [["E8","E9","E10","E11"],["E15","E14","E13","E12"]] },
+        { "id": "F1", "label": "F1–F7", "supervisor": "Juan G.", "x": 820, "y": 670, "desks": ["F1"],
+          "rows": [["F1","F2","F3","F4"],[null,"F7","F6","F5"]] },
+        { "id": "F8", "label": "F8–F15", "supervisor": "Krystyna F.", "x": 820, "y": 780, "desks": [],
+          "rows": [["F11","F10","F9","F8"],["F12","F13","F14","F15"]] }
+      ],
+      "landmarks": [
+        { "text": "Window", "kind": "window", "x": 0, "y": 0, "w": 1000, "h": 14 },
+        { "text": "TV", "kind": "tv", "x": 196, "y": 0, "w": 44, "h": 14 },
+        { "text": "Sup desk · Syair D.", "kind": "text", "x": 12, "y": 18, "w": 200, "h": 16 },
+        { "text": "Sup desk · Diavian W.", "kind": "text", "x": 236, "y": 18, "w": 200, "h": 16 },
+        { "text": "TL Station 4", "kind": "text", "x": 476, "y": 18, "w": 120, "h": 16 },
+        { "text": "Sup desk · Karen G.", "kind": "text", "x": 844, "y": 18, "w": 150, "h": 16 },
+        { "text": "Hallway", "kind": "text", "x": 470, "y": 318, "w": 80, "h": 16 },
+        { "text": "Door", "kind": "text", "x": 8, "y": 340, "w": 60, "h": 16 },
+        { "text": "Hall", "kind": "text", "x": 516, "y": 400, "w": 36, "h": 16 },
+        { "text": "TL Station 2", "kind": "text", "x": 690, "y": 352, "w": 120, "h": 16 },
+        { "text": "TL Station 3", "kind": "text", "x": 690, "y": 410, "w": 120, "h": 16 },
+        { "text": "Sup desk · Edgar C.", "kind": "text", "x": 690, "y": 462, "w": 125, "h": 16 },
+        { "text": "TL Station 1", "kind": "text", "x": 690, "y": 572, "w": 120, "h": 16 },
+        { "text": "Sup desk · Krystyna F.", "kind": "text", "x": 686, "y": 792, "w": 130, "h": 16 },
+        { "text": "Closet", "kind": "thing", "x": 92, "y": 600, "w": 90, "h": 36 },
+        { "text": "Coffee / Water", "kind": "thing", "x": 230, "y": 600, "w": 140, "h": 36 },
+        { "text": "Stairs", "kind": "thing", "x": 556, "y": 600, "w": 126, "h": 44 },
+        { "text": "Elevators", "kind": "thing", "x": 8, "y": 680, "w": 150, "h": 44 },
+        { "text": "Meeting table", "kind": "thing", "x": 556, "y": 760, "w": 126, "h": 40 },
+        { "text": "Door", "kind": "text", "x": 8, "y": 780, "w": 60, "h": 16 },
+        { "text": "", "kind": "window", "x": 988, "y": 330, "w": 12, "h": 560 },
+        { "text": "", "kind": "tv", "x": 988, "y": 440, "w": 12, "h": 36 },
+        { "text": "", "kind": "tv", "x": 988, "y": 660, "w": 12, "h": 36 }
+      ]
+    },
+    {
+      "id": "esc",
+      "name": "Escalations",
+      "width": 700,
+      "height": 490,
+      "grid": "room",
+      "note": "Escalations agents should stay on the main floor when possible.",
+      "pods": [
+        { "id": "I1", "label": "I1–I24", "supervisor": "Escalations / Chat", "x": 60, "y": 60, "desks": ["I9"],
+          "cells": [["I2",0,0],["I15",7,0],["I16",8,0],["I1",0,1],["I3",2,1],["I6",3,1],
+            ["I4",2,2],["I7",3,2],["I21",7,2],["I22",8,2],["I5",2,3],["I8",3,3],["I20",7,3],["I23",8,3],
+            ["I17",5,4],["I18",6,4],["I14",5,5],["I13",6,5],
+            ["I9",0,6],["I10",2,6],["I11",3,6],["I12",5,6],["I19",7,6],["I24",8,6]] }
+      ],
+      "landmarks": [
+        { "text": "Exit", "kind": "thing", "x": 300, "y": 14, "w": 100, "h": 30 },
+        { "text": "HR", "kind": "text", "x": 8, "y": 100, "w": 40, "h": 16 },
+        { "text": "Exit", "kind": "text", "x": 8, "y": 278, "w": 40, "h": 16 },
+        { "text": "Office", "kind": "text", "x": 8, "y": 324, "w": 50, "h": 16 },
+        { "text": "Office", "kind": "thing", "x": 610, "y": 94, "w": 76, "h": 40 },
+        { "text": "Office", "kind": "thing", "x": 610, "y": 232, "w": 76, "h": 40 },
+        { "text": "Copier", "kind": "thing", "x": 300, "y": 370, "w": 52, "h": 36 },
+        { "text": "Window", "kind": "window", "x": 60, "y": 452, "w": 532, "h": 14 }
+      ]
+    },
+    {
+      "id": "nest",
+      "name": "Nesting",
+      "width": 800,
+      "height": 500,
+      "grid": "nest",
+      "note": null,
+      "pods": [
+        { "id": "N1", "label": "N1–N24", "supervisor": "Nesting", "x": 60, "y": 60, "desks": [],
+          "cells": [["N17",1,0],["N18",2,0],["N19",3,0],["N20",4,0],["N21",5,0],["N22",6,0],["N23",7,0],["N24",8,0],
+            ["N16",0,1],["N15",0,2],["N14",0,3],["N13",0,4],["N12",0,5],["N11",0,6],
+            ["N10",2,7],["N9",3,7],["N8",4,7],["N7",5,7],["N6",6,7],["N5",8,7],["N4",9,7],["N3",10,7],["N2",11,7],["N1",12,7]] }
+      ],
+      "landmarks": [
+        { "text": "Window", "kind": "window", "x": 230, "y": 14, "w": 300, "h": 14 },
+        { "text": "Window", "kind": "window", "x": 40, "y": 138, "w": 14, "h": 132 },
+        { "text": "Table", "kind": "thing", "x": 218, "y": 182, "w": 194, "h": 122 },
+        { "text": "T-Desk", "kind": "thing", "x": 568, "y": 138, "w": 94, "h": 34 },
+        { "text": "HR", "kind": "text", "x": 8, "y": 358, "w": 40, "h": 16 },
+        { "text": "Door", "kind": "text", "x": 730, "y": 402, "w": 50, "h": 16 },
+        { "text": "Wall · Hallway", "kind": "text", "x": 560, "y": 470, "w": 150, "h": 16 }
+      ]
+    },
+    {
+      "id": "acad",
+      "name": "The Academy",
+      "width": 680,
+      "height": 440,
+      "grid": "room",
+      "note": null,
+      "pods": [
+        { "id": "T1", "label": "T1–T29", "supervisor": "The Academy", "x": 60, "y": 60, "desks": [], "trainerDesks": ["T13"],
+          "cells": [["T26",0,0],["T27",1,0],["T28",2,0],["T29",3,0],
+            ["T22",0,1],["T23",1,1],["T24",2,1],["T25",3,1],["T9",5,1],["T10",6,1],["T11",7,1],["T12",8,1],
+            ["T18",0,2],["T19",1,2],["T20",2,2],["T21",3,2],["T5",5,2],["T6",6,2],["T7",7,2],["T8",8,2],
+            ["T14",0,3],["T15",1,3],["T16",2,3],["T17",3,3],["T1",5,3],["T2",6,3],["T3",7,3],["T4",8,3],
+            ["T13",0,5]] }
+      ],
+      "landmarks": [
+        { "text": "", "kind": "wall", "x": 60, "y": 24, "w": 532, "h": 10 },
+        { "text": "Table", "kind": "thing", "x": 300, "y": 140, "w": 52, "h": 128 },
+        { "text": "Trainer", "kind": "text", "x": 130, "y": 334, "w": 60, "h": 16 },
+        { "text": "Door", "kind": "text", "x": 304, "y": 400, "w": 60, "h": 16 }
+      ]
+    }
+  ]
+}
