@@ -6,7 +6,12 @@
 set -uo pipefail
 VAULT="$1"; NAME="$2"
 CFG=$(az keyvault secret show --vault-name "$VAULT" -n "$NAME" --query value -o tsv)
-ID=$(jq -r '.clientId' <<<"$CFG"); SECRET=$(jq -r '.Secret // .secret // .clientSecret' <<<"$CFG")
+ID=$(jq -r '.clientId // .ClientId // .ClientID // .client_id // .CLIENT_ID // empty' <<<"$CFG" 2>/dev/null)
+SECRET=$(jq -r '.Secret // .secret // .clientSecret // .ClientSecret // .client_secret // .CLIENT_SECRET // empty' <<<"$CFG" 2>/dev/null)
+if [[ -z "$ID" || -z "$SECRET" ]]; then
+  echo "$NAME: couldn't find a client ID and secret. Field names present: $(jq -r 'keys|join(", ")' <<<"$CFG" 2>/dev/null || echo 'not JSON')"
+  exit 1
+fi
 unset CFG
 for host in mypurecloud.com usw2.pure.cloud use2.us-gov-pure.cloud cac1.pure.cloud mypurecloud.ie euw2.pure.cloud mypurecloud.de mypurecloud.com.au mypurecloud.jp apne2.pure.cloud aps1.pure.cloud sae1.pure.cloud; do
   TOKEN=$(curl -s -u "$ID:$SECRET" -d grant_type=client_credentials "https://login.$host/oauth/token" | jq -r '.access_token // empty')
