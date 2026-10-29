@@ -117,13 +117,23 @@ SQL_TOKEN=$(az account get-access-token --resource https://database.windows.net/
 say "Deploying the app code"
 PKG=$(mktemp -d)/hotseat.zip
 zip -qr "$PKG" package.json package-lock.json server public data db
-az webapp deploy -g "$RG" -n "$APP_NAME" --src-path "$PKG" --type zip -o none
+# The server-side build (npm install) can outlast the deploy API's gateway,
+# which then returns 504 while the build carries on. Upload asynchronously
+# and judge success by the health check instead.
+az webapp deploy -g "$RG" -n "$APP_NAME" --src-path "$PKG" --type zip --async true -o none \
+  || warn "Upload reported an error; checking whether the app comes up anyway."
 
-say "Waiting for the app to start"
-for i in $(seq 1 30); do
-  if curl -fsS "$APP_URL/healthz" 2>/dev/null; then echo; break; fi
+say "Waiting for the build and start (up to 15 minutes)"
+HEALTHY=0
+for i in $(seq 1 90); do
+  if curl -fsS "$APP_URL/healthz" 2>/dev/null; then echo; HEALTHY=1; break; fi
   sleep 10
 done
+if [[ "$HEALTHY" != "1" ]]; then
+  warn "The app didn't report healthy. Recent deployment log:"
+  az webapp log deployment show -g "$RG" -n "$APP_NAME" --query "[].message" -o tsv 2>/dev/null | tail -20
+  exit 1
+fi
 
 cat <<EOF
 
