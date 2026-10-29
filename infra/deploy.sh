@@ -58,9 +58,10 @@ else
   az ad app update --id "$APP_ID" --app-roles @infra/app-roles.json --enable-id-token-issuance true
   echo "Reusing app $APP_ID"
 fi
-# Sign-in needs Microsoft Graph User.Read (delegated)
+# Sign-in scopes (delegated Microsoft Graph): User.Read, openid, profile, email, offline_access.
+# Listed explicitly so one admin consent covers them when user consent is off in the tenant.
 az ad app permission add --id "$APP_ID" --api 00000003-0000-0000-c000-000000000000 \
-  --api-permissions e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope -o none 2>/dev/null || true
+  --api-permissions e1fe6dd8-ba31-4d61-89e7-88639da4683d=Scope 37f7f235-527c-4136-accd-4a02d197296e=Scope 14dad69e-099b-42c9-810b-d002981feec1=Scope 64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0=Scope 7427e0e9-2fba-42fe-b0c0-848c9e6a8182=Scope -o none 2>/dev/null || true
 SECRET=$(az ad app credential reset --id "$APP_ID" --append --display-name "app-service-$(date +%Y%m%d)" \
   --years 1 --query password -o tsv 2>/dev/null)
 
