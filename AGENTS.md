@@ -65,6 +65,7 @@ The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
 
 - Seat IDs are the floor labels exactly: `A1`–`A41`, `B1`–`B27`, `C1`–`C27`, `D1`–`D23`, `E1`–`E21`, `F1`–`F15`, `G1`–`G30`, `H1`–`H3`, `I1`–`I24` (Escalations), `N1`–`N24` (Nesting), `T1`–`T29` (Academy). Never renumber; the floor signage uses them.
 - Seat types: `Agent`, `SupervisorDesk`, `TrainerDesk`, `Ops`. Only `Agent` seats can be claimed.
+- The board is today only. No week view or forward booking: the API accepts only today's work date (America/New_York), and the nightly reset starts a fresh day.
 - Daily status, per seat per work date: `Assigned` → `Open` / `LikelyOpen` → `Claimed`; plus `Blocked` and `OccupiedUnclaimed`. Definitions in `docs/data-model.md`.
 - A claim succeeds only if the seat is `Open` (or `LikelyOpen` after a supervisor confirms) and its row version matches. On conflict return 409 with who claimed it.
 - Blocks (room closed, pod closed, seat out of service) override everything except an existing claim, which is surfaced as a conflict for an admin.

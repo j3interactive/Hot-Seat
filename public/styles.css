@@ -23,10 +23,6 @@ h2 { margin: 0; font-size: 16px; }
 .pill-off { background: var(--warn-bg); color: var(--warn-fg); }
 .me { font-size: 13px; color: var(--muted); text-align: right; }
 .me strong { color: var(--ink); }
-.days { display: flex; gap: 8px; flex-wrap: wrap; }
-.day { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 120px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; text-align: left; }
-.day[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
-.day b { font-size: 14px; } .day span { font-size: 12px; opacity: .85; }
 .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
 .stat div:first-child { font-size: 12px; color: var(--muted); font-weight: 500; }

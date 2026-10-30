@@ -5,8 +5,7 @@
     seats: new Map(), sel: null, ws: null, wsTries: 0, pollTimer: null, busy: false
   };
   const $ = (id) => document.getElementById(id);
-  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
+  
   function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs || {})) {
@@ -44,20 +43,9 @@
   }
 
   // ---------- dates ----------
-  function addDays(iso, n) {
-    const d = new Date(iso + 'T12:00:00Z');
-    d.setUTCDate(d.getUTCDate() + n);
-    return d.toISOString().slice(0, 10);
-  }
-  function weekdayOf(iso) { return new Date(iso + 'T12:00:00Z').getUTCDay(); }
-  function weekDays(today) {
-    let wd = weekdayOf(today);
-    let monday = wd === 0 ? addDays(today, 1) : addDays(today, 1 - wd);
-    return [0, 1, 2, 3, 4, 5].map((i) => addDays(monday, i));
-  }
-  function dayLabel(iso) { return DAY_NAMES[weekdayOf(iso)]; }
-  function shortDate(iso) {
-    return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  // The board is today only; it resets every night.
+  function todayLabel(iso) {
+    return 'Today · ' + new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' });
   }
 
   // ---------- layout helpers ----------
@@ -77,15 +65,7 @@
 
   // ---------- render ----------
   function render() {
-    renderDays(); renderTotals(); renderAreas(); renderSups(); renderMap(); renderDetail(); renderLists();
-  }
-
-  function renderDays() {
-    const box = $('days');
-    box.replaceChildren(...weekDays(S.me.today).map((d) => h('button', {
-      class: 'day', 'aria-pressed': d === S.date ? 'true' : 'false',
-      onclick: () => { if (d !== S.date) { S.date = d; S.sel = null; loadDay(); } }
-    }, h('b', null, dayLabel(d)), h('span', null, shortDate(d) + (d === S.me.today ? ' · Today' : '')))));
+    renderTotals(); renderAreas(); renderSups(); renderMap(); renderDetail(); renderLists();
   }
 
   function counts() {
@@ -179,7 +159,7 @@
     const row = S.seats.get(seat.id) || {};
     const kids = [
       h('div', { class: 'row' }, h('span', { class: 'big' }, seat.id), h('span', { class: 'badge b-' + st }, st === 'Desk' ? 'Sup desk' : st)),
-      h('div', { class: 'muted' }, `Pod ${pod.label} · ${pod.supervisor || ''} · ${dayLabel(S.date)}`)
+      h('div', { class: 'muted' }, `Pod ${pod.label} · ${pod.supervisor || ''} · Today`)
     ];
     let desc = '';
     if (st === 'Open') desc = 'Free to use today.';
@@ -191,7 +171,7 @@
 
     if (S.me.canClaim && st === 'Open') {
       const input = h('input', { id: 'agent', type: 'text', placeholder: 'Agent name', maxlength: '128', autocomplete: 'off' });
-      const go = h('button', { class: 'btn btn-go', onclick: () => act('claim', { agent: input.value }) }, `Claim ${seat.id} for ${dayLabel(S.date)}`);
+      const go = h('button', { class: 'btn btn-go', onclick: () => act('claim', { agent: input.value }) }, `Claim ${seat.id} for today`);
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });
       kids.push(h('div', { class: 'field' }, h('label', { for: 'agent' }, 'Seat which agent?'), input, go));
       kids.push(h('button', { class: 'btn', onclick: () => act('status', { status: 'Assigned' }) }, 'Mark as assigned (home agent is in)'));
@@ -208,8 +188,8 @@
   }
 
   function renderLists() {
-    $('openTitle').textContent = 'Open on ' + dayLabel(S.date);
-    $('claimsTitle').textContent = 'Claims for ' + dayLabel(S.date);
+    $('openTitle').textContent = 'Open today';
+    $('claimsTitle').textContent = "Today's claims";
     const open = [];
     const claimed = [];
     for (const { pod, area } of allPods()) {
@@ -257,9 +237,21 @@
 
   // ---------- data + live updates ----------
   async function loadDay() {
+    await rollDay();
     const data = await api('/days/' + S.date);
     S.seats = new Map(data.seats.map((r) => [r.seatId, r]));
     render();
+  }
+
+  // A board left open overnight moves to the new day on its next refresh.
+  async function rollDay() {
+    if (Date.now() - (rollDay.at || 0) < 60000) return;
+    rollDay.at = Date.now();
+    const me = await api('/me');
+    if (me.today !== S.date) { S.me = me; S.date = me.today; S.sel = null; setSub(); }
+  }
+  function setSub() {
+    $('sub').textContent = todayLabel(S.date) + ' · Pilot: availability is sample data until the Genesys sync is connected';
   }
 
   function setLive(state) {
@@ -309,7 +301,8 @@
       S.date = S.me.today;
       const roleText = { admin: 'Admin', supervisor: 'Supervisor', viewer: 'View only' }[S.me.role];
       $('me').replaceChildren('Signed in as ', h('strong', null, S.me.name), h('br'), roleText);
-      $('sub').textContent = 'Pilot · availability is sample data until the Genesys sync is connected';
+      rollDay.at = Date.now();
+      setSub();
       $('openOnly').addEventListener('change', (e) => { S.openOnly = e.target.checked; renderMap(); });
       await loadDay();
       connect();
