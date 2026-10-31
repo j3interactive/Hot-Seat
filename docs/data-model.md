@@ -8,6 +8,8 @@ Schema: [`db/schema.sql`](../db/schema.sql). Seed (geometry only): [`db/seed.sql
 |---|---|---|
 | `Area` | Main Floor, Escalations, Nesting, The Academy | Map canvas size per area |
 | `Pod` | A1–A14, B14–B27 … | Position on the map, label, owning supervisor (Entra object ID, loaded at runtime) |
+
+Seat-to-supervisor labels live in `data/floor-layout.json` (`seatSupervisors`, ranges like `A1-A13`) and are served with the layout; they are not stored in SQL yet. The pod's `SupervisorLabel` is only a fallback for seats with no entry (Nesting, Academy, Ops).
 | `Seat` | One row per desk | Grid cell inside its pod, type, note, home agent and device mapping (loaded at runtime) |
 | `SeatDay` | Status of each seat on each work date | One row per seat per date; `rowversion` for concurrency |
 | `Block` | Closures with a time range and reason | Area, pod or single seat |

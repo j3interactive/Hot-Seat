@@ -50,7 +50,7 @@ h2 { margin: 0; font-size: 16px; }
 .mark-text { color: var(--muted); font-size: 11px; font-weight: 600; white-space: nowrap; }
 .pod { position: absolute; background: #F8FAFC; border: 1px solid var(--line); border-radius: 10px; padding: 5px 8px; transition: opacity .15s; }
 .pod b { display: block; font: 600 11px 'IBM Plex Mono', monospace; white-space: nowrap; }
-.pod span { display: block; font-size: 10px; color: var(--muted); white-space: nowrap; }
+.pod span { display: block; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dim { opacity: .3; }
 .seat { position: absolute; padding: 0; border-radius: 6px; font: 600 11px/1 'IBM Plex Mono', monospace; cursor: pointer; border: 1px solid; transition: opacity .15s; }
 .s-Open { background: var(--open-bg); border-color: var(--open-bd); color: var(--open-fg); }

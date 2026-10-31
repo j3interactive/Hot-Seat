@@ -100,7 +100,7 @@
     const box = $('sups');
     if (S.area !== 'main') { box.replaceChildren(); return; }
     const area = S.layout.areas.find((a) => a.id === 'main');
-    const names = ['All', ...new Set(area.pods.map((p) => p.supervisor).filter((n) => n && n !== 'Ops / QA'))];
+    const names = ['All', ...new Set(area.pods.flatMap((p) => p.seats.map((x) => x.supervisor)).filter((n) => n && n !== 'Ops / QA'))];
     box.replaceChildren(...names.map((n) => h('button', {
       class: 'chip', 'aria-pressed': S.sup === n ? 'true' : 'false',
       onclick: () => { S.sup = n; renderMap(); renderSups(); }
@@ -123,18 +123,21 @@
       const maxR = Math.max(...pod.seats.map((s) => s.r));
       const w = 16 + (maxC + 1) * g.sx - (g.sx - g.w);
       const hgt = 34 + (maxR + 1) * g.sy - (g.sy - g.h) + 8;
-      const dim = S.area === 'main' && S.sup !== 'All' && pod.supervisor !== S.sup;
-      nodes.push(h('div', { class: 'pod' + (dim ? ' dim' : ''), style: `left:${pod.x}px;top:${pod.y}px;width:${w}px;height:${hgt}px` },
-        h('b', null, pod.label), h('span', null, pod.supervisor || '')));
+      const filtering = S.area === 'main' && S.sup !== 'All';
+      const podSups = [...new Set(pod.seats.map((x) => x.supervisor).filter(Boolean))];
+      const dim = filtering && !podSups.includes(S.sup);
+      nodes.push(h('div', { class: 'pod' + (dim ? ' dim' : ''), style: `left:${pod.x}px;top:${pod.y}px;width:${w}px;height:${hgt}px`, title: podSups.join(', ') },
+        h('b', null, pod.label), h('span', null, podSups.length > 1 ? podSups.join(' · ') : (podSups[0] || pod.supervisor || ''))));
       for (const seat of pod.seats) {
         const st = statusOf(seat);
         const selected = S.sel === seat.id;
-        const faded = !selected && (dim || (S.openOnly && st !== 'Open'));
+        const faded = !selected && ((filtering && seat.supervisor !== S.sup) || (S.openOnly && st !== 'Open'));
         nodes.push(h('button', {
           class: `seat s-${st}${seat.note ? ' has-note' : ''}${faded ? ' dim' : ''}${flashId === seat.id ? ' flash' : ''}`,
           style: `left:${pod.x + 8 + seat.c * g.sx}px;top:${pod.y + 34 + seat.r * g.sy}px;width:${g.w}px;height:${g.h}px`,
           'aria-pressed': selected ? 'true' : 'false',
-          'aria-label': `${seat.id}, ${st === 'Desk' ? 'supervisor desk' : st}${seat.note ? ', has note' : ''}`,
+          title: seat.supervisor ? `${seat.id} · ${seat.supervisor}` : seat.id,
+          'aria-label': `${seat.id}, ${st === 'Desk' ? 'supervisor desk' : st}${seat.supervisor ? ', ' + seat.supervisor : ''}${seat.note ? ', has note' : ''}`,
           onclick: () => { S.sel = seat.id; renderMap(); renderDetail(); }
         }, seat.id));
       }
@@ -159,7 +162,7 @@
     const row = S.seats.get(seat.id) || {};
     const kids = [
       h('div', { class: 'row' }, h('span', { class: 'big' }, seat.id), h('span', { class: 'badge b-' + st }, st === 'Desk' ? 'Sup desk' : st)),
-      h('div', { class: 'muted' }, `Pod ${pod.label} · ${pod.supervisor || ''} · Today`)
+      h('div', { class: 'muted' }, `${seat.supervisor ? 'Supervisor: ' + seat.supervisor + ' · ' : ''}Pod ${pod.label} · Today`)
     ];
     let desc = '';
     if (st === 'Open') desc = 'Free to use today.';
@@ -202,7 +205,7 @@
     $('openCount').textContent = open.length + ' seats';
     $('openList').replaceChildren(...(open.length ? open.map(({ seat, pod, area }) => h('button', {
       class: 'item', onclick: () => { S.area = area.id; S.sel = seat.id; render(); }
-    }, h('code', null, seat.id), h('span', { class: 'muted' }, pod.supervisor || area.name))) : [h('div', { class: 'muted' }, 'No open seats.')]));
+    }, h('code', null, seat.id), h('span', { class: 'muted' }, seat.supervisor || area.name))) : [h('div', { class: 'muted' }, 'No open seats.')]));
     $('claimList').replaceChildren(...(claimed.length ? claimed.map(({ seat, row }) => h('div', { class: 'claim' },
       h('code', null, seat.id), h('span', null, row.claimedForName, ' ', h('span', { class: 'muted' }, '· by ' + row.claimedByName)))) : [h('div', { class: 'muted' }, 'No seats claimed yet.')]));
   }
