@@ -20,12 +20,9 @@ function todayIso() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 }
 
+// The board is today only and resets every night, so only today's date is accepted.
 function validDate(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-  const d = Date.parse(date + 'T12:00:00Z');
-  if (Number.isNaN(d)) return false;
-  const diffDays = (d - Date.parse(todayIso() + 'T12:00:00Z')) / 86400000;
-  return diffDays >= -14 && diffDays <= 21;
+  return date === todayIso();
 }
 
 const app = express();
@@ -55,7 +52,7 @@ api.get('/negotiate', async (req, res, next) => {
 api.get('/days/:date', async (req, res, next) => {
   try {
     const { date } = req.params;
-    if (!validDate(date)) return res.status(400).json({ error: 'Date out of range' });
+    if (!validDate(date)) return res.status(400).json({ error: 'Only today can be viewed or changed' });
     res.json({ date, seats: await store.getDay(date) });
   } catch (e) { next(e); }
 });
@@ -64,7 +61,7 @@ function seatAction(handler, minRole) {
   return async (req, res, next) => {
     try {
       const { date, seatId } = req.params;
-      if (!validDate(date)) return res.status(400).json({ error: 'Date out of range' });
+      if (!validDate(date)) return res.status(400).json({ error: 'Only today can be viewed or changed' });
       const seat = layoutData.seats.get(seatId);
       if (!seat) return res.status(404).json({ error: 'Unknown seat' });
       if (!atLeast(req.user, minRole)) return res.status(403).json({ error: 'Not allowed for your role' });

@@ -66,7 +66,7 @@ and an app role (`Seating.Automation`).
 
 ## Real-time contract
 
-- Group per work date: `day:2026-10-28`. Clients join today's group plus whichever day they are viewing.
+- Group per work date: `day:2026-10-28`. Clients join today's group only; the board shows today and resets each night.
 - Message: `{ "type": "seat.changed", "date": "...", "seatId": "A14", "status": "Claimed", "rowVersion": "...", "claimedFor": "...", "claimedBy": "..." }`.
 - Push is a hint, not the source of truth. On connect, reconnect or a gap, the client refetches `GET /api/days/{date}`.
 

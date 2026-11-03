@@ -5,8 +5,7 @@
     seats: new Map(), sel: null, ws: null, wsTries: 0, pollTimer: null, busy: false
   };
   const $ = (id) => document.getElementById(id);
-  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
+  
   function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs || {})) {
@@ -44,20 +43,9 @@
   }
 
   // ---------- dates ----------
-  function addDays(iso, n) {
-    const d = new Date(iso + 'T12:00:00Z');
-    d.setUTCDate(d.getUTCDate() + n);
-    return d.toISOString().slice(0, 10);
-  }
-  function weekdayOf(iso) { return new Date(iso + 'T12:00:00Z').getUTCDay(); }
-  function weekDays(today) {
-    let wd = weekdayOf(today);
-    let monday = wd === 0 ? addDays(today, 1) : addDays(today, 1 - wd);
-    return [0, 1, 2, 3, 4, 5].map((i) => addDays(monday, i));
-  }
-  function dayLabel(iso) { return DAY_NAMES[weekdayOf(iso)]; }
-  function shortDate(iso) {
-    return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+  // The board is today only; it resets every night.
+  function todayLabel(iso) {
+    return 'Today · ' + new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'UTC' });
   }
 
   // ---------- layout helpers ----------
@@ -77,15 +65,7 @@
 
   // ---------- render ----------
   function render() {
-    renderDays(); renderTotals(); renderAreas(); renderSups(); renderMap(); renderDetail(); renderLists();
-  }
-
-  function renderDays() {
-    const box = $('days');
-    box.replaceChildren(...weekDays(S.me.today).map((d) => h('button', {
-      class: 'day', 'aria-pressed': d === S.date ? 'true' : 'false',
-      onclick: () => { if (d !== S.date) { S.date = d; S.sel = null; loadDay(); } }
-    }, h('b', null, dayLabel(d)), h('span', null, shortDate(d) + (d === S.me.today ? ' · Today' : '')))));
+    renderTotals(); renderAreas(); renderSups(); renderMap(); renderDetail(); renderLists();
   }
 
   function counts() {
@@ -120,7 +100,7 @@
     const box = $('sups');
     if (S.area !== 'main') { box.replaceChildren(); return; }
     const area = S.layout.areas.find((a) => a.id === 'main');
-    const names = ['All', ...new Set(area.pods.map((p) => p.supervisor).filter((n) => n && n !== 'Ops / QA'))];
+    const names = ['All', ...new Set(area.pods.flatMap((p) => p.seats.map((x) => x.supervisor)).filter((n) => n && n !== 'Ops / QA'))];
     box.replaceChildren(...names.map((n) => h('button', {
       class: 'chip', 'aria-pressed': S.sup === n ? 'true' : 'false',
       onclick: () => { S.sup = n; renderMap(); renderSups(); }
@@ -143,18 +123,21 @@
       const maxR = Math.max(...pod.seats.map((s) => s.r));
       const w = 16 + (maxC + 1) * g.sx - (g.sx - g.w);
       const hgt = 34 + (maxR + 1) * g.sy - (g.sy - g.h) + 8;
-      const dim = S.area === 'main' && S.sup !== 'All' && pod.supervisor !== S.sup;
-      nodes.push(h('div', { class: 'pod' + (dim ? ' dim' : ''), style: `left:${pod.x}px;top:${pod.y}px;width:${w}px;height:${hgt}px` },
-        h('b', null, pod.label), h('span', null, pod.supervisor || '')));
+      const filtering = S.area === 'main' && S.sup !== 'All';
+      const podSups = [...new Set(pod.seats.map((x) => x.supervisor).filter(Boolean))];
+      const dim = filtering && !podSups.includes(S.sup);
+      nodes.push(h('div', { class: 'pod' + (dim ? ' dim' : ''), style: `left:${pod.x}px;top:${pod.y}px;width:${w}px;height:${hgt}px`, title: podSups.join(', ') },
+        h('b', null, pod.label), h('span', null, podSups.length > 1 ? podSups.join(' · ') : (podSups[0] || pod.supervisor || ''))));
       for (const seat of pod.seats) {
         const st = statusOf(seat);
         const selected = S.sel === seat.id;
-        const faded = !selected && (dim || (S.openOnly && st !== 'Open'));
+        const faded = !selected && ((filtering && seat.supervisor !== S.sup) || (S.openOnly && st !== 'Open'));
         nodes.push(h('button', {
           class: `seat s-${st}${seat.note ? ' has-note' : ''}${faded ? ' dim' : ''}${flashId === seat.id ? ' flash' : ''}`,
           style: `left:${pod.x + 8 + seat.c * g.sx}px;top:${pod.y + 34 + seat.r * g.sy}px;width:${g.w}px;height:${g.h}px`,
           'aria-pressed': selected ? 'true' : 'false',
-          'aria-label': `${seat.id}, ${st === 'Desk' ? 'supervisor desk' : st}${seat.note ? ', has note' : ''}`,
+          title: seat.supervisor ? `${seat.id} · ${seat.supervisor}` : seat.id,
+          'aria-label': `${seat.id}, ${st === 'Desk' ? 'supervisor desk' : st}${seat.supervisor ? ', ' + seat.supervisor : ''}${seat.note ? ', has note' : ''}`,
           onclick: () => { S.sel = seat.id; renderMap(); renderDetail(); }
         }, seat.id));
       }
@@ -179,7 +162,7 @@
     const row = S.seats.get(seat.id) || {};
     const kids = [
       h('div', { class: 'row' }, h('span', { class: 'big' }, seat.id), h('span', { class: 'badge b-' + st }, st === 'Desk' ? 'Sup desk' : st)),
-      h('div', { class: 'muted' }, `Pod ${pod.label} · ${pod.supervisor || ''} · ${dayLabel(S.date)}`)
+      h('div', { class: 'muted' }, `${seat.supervisor ? 'Supervisor: ' + seat.supervisor + ' · ' : ''}Pod ${pod.label} · Today`)
     ];
     let desc = '';
     if (st === 'Open') desc = 'Free to use today.';
@@ -191,7 +174,7 @@
 
     if (S.me.canClaim && st === 'Open') {
       const input = h('input', { id: 'agent', type: 'text', placeholder: 'Agent name', maxlength: '128', autocomplete: 'off' });
-      const go = h('button', { class: 'btn btn-go', onclick: () => act('claim', { agent: input.value }) }, `Claim ${seat.id} for ${dayLabel(S.date)}`);
+      const go = h('button', { class: 'btn btn-go', onclick: () => act('claim', { agent: input.value }) }, `Claim ${seat.id} for today`);
       input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });
       kids.push(h('div', { class: 'field' }, h('label', { for: 'agent' }, 'Seat which agent?'), input, go));
       kids.push(h('button', { class: 'btn', onclick: () => act('status', { status: 'Assigned' }) }, 'Mark as assigned (home agent is in)'));
@@ -208,8 +191,8 @@
   }
 
   function renderLists() {
-    $('openTitle').textContent = 'Open on ' + dayLabel(S.date);
-    $('claimsTitle').textContent = 'Claims for ' + dayLabel(S.date);
+    $('openTitle').textContent = 'Open today';
+    $('claimsTitle').textContent = "Today's claims";
     const open = [];
     const claimed = [];
     for (const { pod, area } of allPods()) {
@@ -222,7 +205,7 @@
     $('openCount').textContent = open.length + ' seats';
     $('openList').replaceChildren(...(open.length ? open.map(({ seat, pod, area }) => h('button', {
       class: 'item', onclick: () => { S.area = area.id; S.sel = seat.id; render(); }
-    }, h('code', null, seat.id), h('span', { class: 'muted' }, pod.supervisor || area.name))) : [h('div', { class: 'muted' }, 'No open seats.')]));
+    }, h('code', null, seat.id), h('span', { class: 'muted' }, seat.supervisor || area.name))) : [h('div', { class: 'muted' }, 'No open seats.')]));
     $('claimList').replaceChildren(...(claimed.length ? claimed.map(({ seat, row }) => h('div', { class: 'claim' },
       h('code', null, seat.id), h('span', null, row.claimedForName, ' ', h('span', { class: 'muted' }, '· by ' + row.claimedByName)))) : [h('div', { class: 'muted' }, 'No seats claimed yet.')]));
   }
@@ -257,9 +240,21 @@
 
   // ---------- data + live updates ----------
   async function loadDay() {
+    await rollDay();
     const data = await api('/days/' + S.date);
     S.seats = new Map(data.seats.map((r) => [r.seatId, r]));
     render();
+  }
+
+  // A board left open overnight moves to the new day on its next refresh.
+  async function rollDay() {
+    if (Date.now() - (rollDay.at || 0) < 60000) return;
+    rollDay.at = Date.now();
+    const me = await api('/me');
+    if (me.today !== S.date) { S.me = me; S.date = me.today; S.sel = null; setSub(); }
+  }
+  function setSub() {
+    $('sub').textContent = todayLabel(S.date) + ' · Pilot: availability is sample data until the Genesys sync is connected';
   }
 
   function setLive(state) {
@@ -309,7 +304,8 @@
       S.date = S.me.today;
       const roleText = { admin: 'Admin', supervisor: 'Supervisor', viewer: 'View only' }[S.me.role];
       $('me').replaceChildren('Signed in as ', h('strong', null, S.me.name), h('br'), roleText);
-      $('sub').textContent = 'Pilot · availability is sample data until the Genesys sync is connected';
+      rollDay.at = Date.now();
+      setSub();
       $('openOnly').addEventListener('change', (e) => { S.openOnly = e.target.checked; renderMap(); });
       await loadDay();
       connect();

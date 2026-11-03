@@ -5,6 +5,7 @@ Run from the repo root:  python3 tools/build_seed.py
 Validates the layout (unique seat IDs, desks belong to their pod) and prints a summary.
 """
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -28,6 +29,26 @@ def cells_of(pod):
             if sid:
                 out.append((sid, c, r))
     return out
+
+
+def expand(spec):
+    m = re.fullmatch(r"([A-Z]+)(\d+)(?:-\1?(\d+))?", spec.strip())
+    if not m:
+        raise ValueError(f"bad seat range {spec!r} in seatSupervisors")
+    lo = int(m.group(2))
+    hi = int(m.group(3) or lo)
+    return [f"{m.group(1)}{n}" for n in range(lo, hi + 1)]
+
+
+def supervisor_index(layout, errors):
+    index = {}
+    for name, specs in layout.get("seatSupervisors", {}).items():
+        for spec in specs:
+            for sid in expand(spec):
+                if sid in index:
+                    errors.append(f"seat {sid} assigned to both {index[sid]} and {name}")
+                index[sid] = name
+    return index
 
 
 def main():
@@ -79,6 +100,14 @@ def main():
                 area_count += 1
         summary.append(f"{area['name']}: {area_count} seats")
 
+    sups = supervisor_index(layout, errors)
+    for sid in sups:
+        if sid not in seen:
+            errors.append(f"seatSupervisors names unknown seat {sid}")
+    by_sup = {}
+    for sid, name in sups.items():
+        by_sup[name] = by_sup.get(name, 0) + 1
+
     for sid in notes:
         if sid not in seen:
             errors.append(f"note for unknown seat {sid}")
@@ -90,6 +119,8 @@ def main():
     lines.append("COMMIT TRANSACTION;")
     OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(summary))
+    if by_sup:
+        print("Supervisors: " + ", ".join(f"{n} {c}" for n, c in by_sup.items()))
     print(f"Total: {len(seen)} seats -> {OUT.relative_to(ROOT)}")
 
 

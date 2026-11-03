@@ -65,6 +65,8 @@ The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
 
 - Seat IDs are the floor labels exactly: `A1`–`A41`, `B1`–`B27`, `C1`–`C27`, `D1`–`D23`, `E1`–`E21`, `F1`–`F15`, `G1`–`G30`, `H1`–`H3`, `I1`–`I24` (Escalations), `N1`–`N24` (Nesting), `T1`–`T29` (Academy). Never renumber; the floor signage uses them.
 - Seat types: `Agent`, `SupervisorDesk`, `TrainerDesk`, `Ops`. Only `Agent` seats can be claimed.
+- Every main-floor and Escalations seat belongs to one supervisor, set in `seatSupervisors` by seat range. A pod can hold seats from several supervisors (e.g. A1–A13 Syair D., A14 Nicole B.). The supervisor filter, seat detail and open list use the seat's supervisor, not the pod's.
+- The board is today only. No week view or forward booking: the API accepts only today's work date (America/New_York), and the nightly reset starts a fresh day.
 - Daily status, per seat per work date: `Assigned` → `Open` / `LikelyOpen` → `Claimed`; plus `Blocked` and `OccupiedUnclaimed`. Definitions in `docs/data-model.md`.
 - A claim succeeds only if the seat is `Open` (or `LikelyOpen` after a supervisor confirms) and its row version matches. On conflict return 409 with who claimed it.
 - Blocks (room closed, pod closed, seat out of service) override everything except an existing claim, which is surfaced as a conflict for an admin.
@@ -74,7 +76,7 @@ The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
 ## Data and privacy rules
 
 - **No employee data in this repo.** No agent names, UPNs, Genesys user IDs, badge IDs or device IDs. The seed holds seat geometry and pod labels only. Home-agent and device mappings are loaded into SQL from Genesys / Entra / the Supervisor Tracker at runtime.
-- Supervisor display names appear in `data/floor-layout.json` only as pod labels (how the floor refers to pods). Real ownership is by Entra object ID in SQL.
+- Supervisor display names appear in `data/floor-layout.json` only as labels: pod labels and the `seatSupervisors` map (which supervisor's team sits at each seat, taken from the Floor tab colors). Real ownership is by Entra object ID in SQL.
 - Badge (Avigilon) and device sign-in data are used only to derive a status. Never store or show raw timestamps or locations to supervisors. Retain derived events for 90 days unless the owner says otherwise.
 - This repo must stay private.
 
