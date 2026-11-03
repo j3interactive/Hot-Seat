@@ -58,7 +58,8 @@ The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
 ## Running and deploying
 
 - Local: `npm install && npm run dev` → http://localhost:8080 with an in-memory store and a fake admin user (`DEV_USER`). Headers `x-dev-user` / `x-dev-role` let you simulate other users. `DEV_USER` is ignored on App Service.
-- Azure (dev): in Cloud Shell, clone the repo and run `./infra/deploy.sh`. It creates the app registration and roles, deploys `infra/main.bicep` to `rg-metroseating-dev`, grants the managed identity database access (`tools/sql-grant.js`) and zip-deploys the code. Safe to re-run; re-running is also how you ship code changes for now.
+- Azure (dev), first time: in Cloud Shell, clone the repo and run `./infra/deploy.sh`. It creates the app registration and roles, deploys `infra/main.bicep` to `rg-metroseating-dev`, grants the managed identity database access (`tools/sql-grant.js`) and zip-deploys the code. Re-run it only for infrastructure changes (it also adds a new Entra client secret each run).
+- Shipping code: merge to `main`. `.github/workflows/deploy.yml` checks the code, zip-deploys to the dev App Service and waits until `/healthz` reports the new commit. It signs in with OIDC to the managed identity `id-metroseating-github-dev` (Website Contributor on the web app only, trusts only `main`); no Azure secret is stored in GitHub. One-time setup: `./infra/setup-github-deploy.sh` in Cloud Shell, then add the five repository variables it prints. Re-deploy without a change: Actions > Deploy (dev) > Run workflow.
 - Users get access by being assigned a role on the "Metro Hot Seating (dev)" enterprise app. Unassigned users cannot sign in.
 
 ## Domain rules (the app must enforce these)
@@ -98,7 +99,9 @@ README.md                  human overview and quick start
 server/                    Express API: index (routes), auth (Easy Auth claims), store-sql / store-memory, realtime (Web PubSub), sample (pilot data)
 public/                    front end: index.html, app.js, styles.css
 infra/main.bicep           Azure resources for one environment
-infra/deploy.sh            end-to-end deploy from Cloud Shell
+infra/deploy.sh            first-time environment build from Cloud Shell
+infra/setup-github-deploy.sh  one-time: lets GitHub Actions deploy (OIDC identity + variables)
+.github/workflows/deploy.yml  deploys to dev on every merge to main
 infra/app-roles.json       Entra app roles (IDs are fixed; never change them)
 data/floor-layout.json     areas, pods, seat grid, landmarks (source of truth for geometry)
 db/schema.sql              Azure SQL schema (the app applies it on first start)
