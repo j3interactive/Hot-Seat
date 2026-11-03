@@ -116,7 +116,7 @@
     map.setAttribute('aria-label', area.name + ' map');
     const nodes = [];
     for (const m of area.landmarks || []) {
-      nodes.push(h('div', { class: 'mark mark-' + m.kind, style: `left:${m.x}px;top:${m.y}px;width:${m.w}px;height:${m.h}px` }, m.text));
+      nodes.push(h('div', { class: 'mark mark-' + m.kind, title: m.kind === 'desk' ? m.text + ' (fixed desk, not claimable)' : null, style: `left:${m.x}px;top:${m.y}px;width:${m.w}px;height:${m.h}px;${m.kind === 'desk' ? `line-height:${m.h - 4}px` : ''}` }, m.text));
     }
     for (const pod of area.pods) {
       const maxC = Math.max(...pod.seats.map((s) => s.c));

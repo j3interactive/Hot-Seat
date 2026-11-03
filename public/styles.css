@@ -47,6 +47,7 @@ h2 { margin: 0; font-size: 16px; }
 .mark-tv { background: #33475B; color: #fff; border-radius: 3px; font-size: 9px; font-weight: 600; justify-content: center; }
 .mark-wall { background: #CBD2DA; border-radius: 2px; }
 .mark-thing { border: 1px dashed #A9B4C0; background: #FBFCFD; color: var(--muted); border-radius: 6px; font-size: 11px; justify-content: center; }
+.mark-desk { background: #E4E8EE; border: 1px solid #B8C2CE; border-bottom-width: 3px; color: #33475B; border-radius: 5px; font-size: 10px; font-weight: 600; justify-content: center; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 18px; text-align: center; }
 .mark-text { color: var(--muted); font-size: 11px; font-weight: 600; white-space: nowrap; }
 .pod { position: absolute; background: #F8FAFC; border: 1px solid var(--line); border-radius: 10px; padding: 5px 8px; transition: opacity .15s; }
 .pod b { display: block; font: 600 11px 'IBM Plex Mono', monospace; white-space: nowrap; }
@@ -69,6 +70,7 @@ h2 { margin: 0; font-size: 16px; }
 .sw-assigned { background: var(--asg-bg); border-color: var(--asg-bd); }
 .sw-desk { background: var(--desk); }
 .sw-note { background: #fff; border-color: #C9D1DB; box-shadow: inset 0 -3px 0 var(--note); }
+.sw-fixed { background: #E4E8EE; border: 1px solid #B8C2CE; border-bottom-width: 3px; }
 .sw-window { background: var(--window); height: 10px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .card-head { display: flex; justify-content: space-between; align-items: baseline; }
