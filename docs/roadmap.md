@@ -11,7 +11,8 @@ Update the status column whenever a phase moves.
 | 4 | 6 AM Genesys WFM sync runbook (automatic Opens) | Not started |
 | 5 | Presence worker: no-shows (with supervisor confirm) and early leaves; Teams channel alerts | Not started |
 | 6 | Optional signals (Avigilon badges, desk PC sign-ins) and utilization reporting | Not started — needs HR sign-off |
-| — | Production hardening: Key Vault, CI/CD (GitHub Actions + OIDC), least-privilege SQL, blocks UI, Web PubSub Standard | Not started — see "Pilot shortcuts" in AGENTS.md |
+| — | CI/CD: GitHub Actions + OIDC deploy to dev on merge to main | Built 2026-11-03; needs the one-time `infra/setup-github-deploy.sh` run |
+| — | Production hardening: Key Vault, prod environment with approval gate, least-privilege SQL, blocks UI, Web PubSub Standard | Not started — see "Pilot shortcuts" in AGENTS.md |
 
 Phases 1–4 make a usable live tool; 5–6 make it smarter.
 

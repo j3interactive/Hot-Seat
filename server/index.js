@@ -34,7 +34,11 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/healthz', (req, res) => res.json({ ok: true, store: store.kind, realtime: realtime.enabled }));
+// version.json is written by the GitHub deploy workflow so it can tell when the new build is live.
+let BUILD = { commit: 'local' };
+try { BUILD = require('../version.json'); } catch (e) { /* not a CI build */ }
+
+app.get('/healthz', (req, res) => res.json({ ok: true, store: store.kind, realtime: realtime.enabled, commit: BUILD.commit }));
 
 const api = express.Router();
 api.use(requireUser);

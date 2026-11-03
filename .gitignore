@@ -13,3 +13,6 @@ __pycache__/
 # never commit exports of rosters, schedules or badge data
 *.xlsx
 *.csv
+
+# written at deploy time by .github/workflows/deploy.yml
+version.json
