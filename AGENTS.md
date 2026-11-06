@@ -105,6 +105,7 @@ db/schema.sql              Azure SQL schema (the app applies it on first start)
 db/seed.sql                generated from floor-layout.json (for manual loads; the app seeds itself)
 tools/build_seed.py        generator for db/seed.sql
 tools/sql-grant.js         grants the managed identity database access
+tools/Set-SeatDeviceTag.ps1  stamps each desk PC's Entra device with its seat ID (extensionAttribute1)
 docs/architecture.md       components, flows, diagram
 docs/automation.md         availability signals and state logic
 docs/data-model.md         tables, statuses, claim concurrency

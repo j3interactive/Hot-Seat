@@ -38,7 +38,8 @@ nightly: close the day, archive events, nothing carries over
 ## Required mappings
 
 - **Agent → home seat**: `Seat.HomeAgentGenesysUserId` (+ UPN). Sourced from the Supervisor Tracker hierarchy and Genesys; never committed here.
-- **Device → seat**: store the seat ID on the device (Entra device extension attribute or Intune device category), not in the device name, so PCs can move without a rename.
+- **Device → seat**: the seat ID is stored on the PC's Entra device object in `extensionAttribute1` (e.g. `A1`), not in the device name or this repo, so PCs can be renamed or moved without touching the app. Set it with `tools/Set-SeatDeviceTag.ps1` from a `SeatId,ComputerName` CSV (exported from the Metro Seat → Computer Map workbook; never committed). Run with `-WhatIf` first; `-ClearUnlisted` clears PCs that left the floor. Re-run whenever a PC is swapped. The device worker resolves a sign-in's device to a seat by reading this attribute; `Seat.DeviceId` is filled from it at runtime.
+  - First mapping received 2026-11-06: 226 of 264 seats have a PC. No PC listed yet for A6, A21 (sup desk), H1–H3, N12, N13, N15, N16 and the Academy (T1–T29).
 
 ## Where it runs
 
