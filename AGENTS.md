@@ -29,6 +29,7 @@ buried in side columns (e.g. the D8 keyboard rule).
 | 2 | Plain web app with Entra sign-in, not a Teams app | `docs/decisions/0002-web-not-teams.md` |
 | 3 | Azure SQL is the system of record; claims are atomic in the database | `docs/decisions/0003-azure-sql-system-of-record.md` |
 | 4 | Automation suggests, supervisors confirm, for no-shows; schedule-based opens are fully automatic | `docs/automation.md` |
+| 5 | A PC's seat lives on the device (Entra `extensionAttribute1`) and is mirrored into Intune notes and a per-area device category | `docs/decisions/0004-seat-on-device-mirrored-to-intune.md` |
 
 ## Architecture in one screen
 
@@ -105,7 +106,7 @@ db/schema.sql              Azure SQL schema (the app applies it on first start)
 db/seed.sql                generated from floor-layout.json (for manual loads; the app seeds itself)
 tools/build_seed.py        generator for db/seed.sql
 tools/sql-grant.js         grants the managed identity database access
-tools/Set-SeatDeviceTag.ps1  stamps each desk PC's Entra device with its seat ID (extensionAttribute1)
+tools/Set-SeatDeviceTag.ps1  tags each desk PC with its seat: Entra extensionAttribute1, Intune notes, Intune area category
 docs/architecture.md       components, flows, diagram
 docs/automation.md         availability signals and state logic
 docs/data-model.md         tables, statuses, claim concurrency

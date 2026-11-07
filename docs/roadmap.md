@@ -10,7 +10,8 @@ Update the status column whenever a phase moves.
 | 3 | Real-time with Azure Web PubSub | Pilot built 2026-10-28 (Free tier) |
 | 4 | 6 AM Genesys WFM sync runbook (automatic Opens) | Not started |
 | 5 | Presence worker: no-shows (with supervisor confirm) and early leaves; Teams channel alerts | Not started |
-| 6 | Optional signals (Avigilon badges, desk PC sign-ins) and utilization reporting | Not started — needs HR sign-off. Seat → PC mapping received 2026-11-06; `tools/Set-SeatDeviceTag.ps1` tags devices |
+| 6 | Optional signals (Avigilon badges, desk PC sign-ins) and utilization reporting | Not started — needs HR sign-off. Seat → PC mapping received 2026-11-06; `tools/Set-SeatDeviceTag.ps1` tags devices in Entra and Intune (2026-11-07) |
+| — | Asset tracking: nightly Intune hardware pull into SQL, admin Assets page (seat → PC → serial, model, last seen) | Not started — decision 0004 |
 | — | Production hardening: Key Vault, CI/CD (GitHub Actions + OIDC), least-privilege SQL, blocks UI, Web PubSub Standard | Not started — see "Pilot shortcuts" in AGENTS.md |
 
 Phases 1–4 make a usable live tool; 5–6 make it smarter.
