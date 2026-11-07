@@ -52,7 +52,7 @@ Full detail: `docs/architecture.md`.
 
 The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
 - Availability is sample data by weekday (`server/sample.js`) plus manual "Mark open / assigned". Replaced by the WFM sync (phase 4).
-- The Web PubSub connection string and the Entra client secret are App Service settings, not Key Vault references. No Key Vault yet.
+- The Web PubSub connection string, the Entra client secret and the Datto API key (`DATTO_API_URL`, `DATTO_API_KEY`, `DATTO_API_SECRET`, read-only user `svc-hotseat-api`) are App Service settings, not Key Vault references. `kv-metroseating-dev` exists but is unused: granting access to it needs role-assignment rights on the resource group. `deploy.sh` keeps `DATTO_*` settings across redeploys.
 - The app's managed identity is `db_ddladmin` so it can create the schema on first start. Drop to reader/writer and run migrations from the pipeline instead.
 - Web PubSub is the Free tier (20 connections, no SLA).
 - No blocks UI yet; `Block` table exists but is unused.

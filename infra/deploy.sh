@@ -88,6 +88,18 @@ if [[ "$HAS" == "0" ]]; then
   done
 fi
 
+# Settings added by hand (e.g. DATTO_*) aren't in main.bicep, and the Bicep
+# deployment replaces the app's whole settings list. Save them first and put
+# them back afterwards so a redeploy doesn't wipe them.
+KEEP=$(mktemp); chmod 600 "$KEEP"
+OLD_APP=$(az webapp list -g "$RG" --query "[?starts_with(name,'app-metroseating-$ENV_NAME')].name | [0]" -o tsv 2>/dev/null)
+if [[ -n "$OLD_APP" ]]; then
+  az webapp config appsettings list -g "$RG" -n "$OLD_APP" \
+    --query "[?starts_with(name,'DATTO_')]" -o json > "$KEEP" 2>/dev/null || echo '[]' > "$KEEP"
+else
+  echo '[]' > "$KEEP"
+fi
+
 say "Deploying Azure resources (about 5 minutes)"
 OUT=$(az deployment group create -g "$RG" -n "metroseating-$(date +%Y%m%d%H%M%S)" \
   -f infra/main.bicep \
@@ -96,6 +108,11 @@ OUT=$(az deployment group create -g "$RG" -n "metroseating-$(date +%Y%m%d%H%M%S)
   --query properties.outputs -o json)
 out() { printf '%s' "$OUT" | python3 -c "import json,sys; print(json.load(sys.stdin)['$1']['value'])"; }
 APP_NAME=$(out appName); APP_URL=$(out appUrl)
+if [[ "$(python3 -c "import json,sys; print(len(json.load(open(sys.argv[1]))))" "$KEEP")" != "0" ]]; then
+  say "Restoring hand-added app settings"
+  az webapp config appsettings set -g "$RG" -n "$APP_NAME" --settings @"$KEEP" -o none
+fi
+rm -f "$KEEP"
 SQL_NAME=$(out sqlServerName); SQL_FQDN=$(out sqlServerFqdn); SQL_DB=$(out sqlDatabaseName)
 ID_NAME=$(out identityName); ID_CLIENT=$(out identityClientId)
 
