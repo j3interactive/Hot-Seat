@@ -29,6 +29,7 @@ buried in side columns (e.g. the D8 keyboard rule).
 | 2 | Plain web app with Entra sign-in, not a Teams app | `docs/decisions/0002-web-not-teams.md` |
 | 3 | Azure SQL is the system of record; claims are atomic in the database | `docs/decisions/0003-azure-sql-system-of-record.md` |
 | 4 | Automation suggests, supervisors confirm, for no-shows; schedule-based opens are fully automatic | `docs/automation.md` |
+| 5 | Desk sign-ins come from Entra sign-in logs; the PC → seat mapping lives in a Datto UDF, copied to Entra `extensionAttribute1` | `docs/decisions/0004-desk-signins-entra-datto.md` |
 
 ## Architecture in one screen
 
@@ -41,7 +42,8 @@ Full detail: `docs/architecture.md`.
 - **Auth**: App Service built-in auth with Entra ID. Enterprise app has "Assignment required"; app roles `Seating.Admin`, `Seating.Supervisor`, `Seating.Viewer`, plus `Seating.Automation` for the runbooks and worker.
 - **Automation**:
   - Azure Automation runbook, ~6:00 AM ET: pull Genesys WFM schedules and time off, mark seats Open for home agents not scheduled.
-  - Always-on worker (App Service WebJob or Container App): Genesys notification subscription for presence and routing status; flags no-shows and early leaves.
+  - Hourly device sync runbook: Datto `Seat` UDF → Entra device `extensionAttribute1` and `Seat.DeviceId`.
+  - Always-on worker (App Service WebJob or Container App): Genesys notification subscription for presence and routing status, plus a 2–5 minute poll of Entra Windows sign-ins; flags no-shows, agents at other desks, and early leaves.
   - Nightly runbook: close out the day, archive events, reset claims.
 - **Secrets**: Key Vault + managed identities. No secrets in code, config files or this repo.
 - **Monitoring**: Application Insights.
@@ -77,7 +79,7 @@ The dev pilot deployed by `infra/deploy.sh` cuts these corners on purpose:
 
 - **No employee data in this repo.** No agent names, UPNs, Genesys user IDs, badge IDs or device IDs. The seed holds seat geometry and pod labels only. Home-agent and device mappings are loaded into SQL from Genesys / Entra / the Supervisor Tracker at runtime.
 - Supervisor display names appear in `data/floor-layout.json` only as labels: pod labels and the `seatSupervisors` map (which supervisor's team sits at each seat, taken from the Floor tab colors). Real ownership is by Entra object ID in SQL.
-- Badge (Avigilon) and device sign-in data are used only to derive a status. Never store or show raw timestamps or locations to supervisors. Retain derived events for 90 days unless the owner says otherwise.
+- Badge (Avigilon) and desk sign-in (Entra sign-in log) data are used only to derive a status. Never store or show raw timestamps or locations to supervisors. Retain derived events for 90 days unless the owner says otherwise.
 - This repo must stay private.
 
 ## Conventions

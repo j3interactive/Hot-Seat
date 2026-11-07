@@ -13,13 +13,14 @@ flowchart LR
     SQL[(Azure SQL)]
     WPS[Azure Web PubSub]
     WORKER[Presence worker<br/>WebJob / Container App]
-    AA[Azure Automation<br/>6 AM sync, nightly reset]
+    AA[Azure Automation<br/>6 AM sync, device sync,<br/>nightly reset]
     KV[Key Vault]
     AI[Application Insights]
   end
   GEN[Genesys Cloud<br/>WFM + presence]
   AVI[Avigilon<br/>badge events]
-  ENTRA[Intune / Entra<br/>device sign-ins]
+  ENTRA[Entra ID<br/>Windows sign-in logs,<br/>device extensionAttribute1]
+  DATTO[Datto RMM<br/>Seat UDF]
 
   UI -- sign in --> AUTH --> API
   UI -- REST --> API
@@ -30,7 +31,9 @@ flowchart LR
   WORKER -- event subscription --> GEN
   WORKER --> API
   WORKER -. optional .-> AVI
-  WORKER -. optional .-> ENTRA
+  WORKER -. sign-ins .-> ENTRA
+  AA -. seat UDF .-> DATTO
+  AA -. extensionAttribute1 .-> ENTRA
   API --> KV
   WORKER --> KV
   AA --> KV
@@ -64,6 +67,11 @@ and an app role (`Seating.Automation`).
 3. Supervisor confirms → `Open`, or dismisses → stays `Assigned`.
 4. Agent goes offline after scheduled end or for the rest of a split → `Open` for the remaining hours.
 
+**Desk sign-ins**
+1. Hourly runbook reads the Datto `Seat` UDF for Metro desk PCs, matches each to its Entra device by name, and writes the seat to `extensionAttribute1` and the Entra device ID to `Seat.DeviceId`. Mismatches are reported, not guessed.
+2. Every 2–5 minutes the worker reads new Windows Sign In events from Graph `auditLogs/signIns` since its checkpoint.
+3. Device ID → seat, UPN → agent. Home agent at home desk confirms `Assigned`; home agent at another desk makes the home seat `LikelyOpen`; anyone else at a desk raises `OccupiedUnclaimed` (source `Device`).
+
 ## Real-time contract
 
 - Group per work date: `day:2026-10-28`. Clients join today's group only; the board shows today and resets each night.
@@ -76,6 +84,8 @@ and an app role (`Seating.Automation`).
 - Conditional Access applies as for any Entra app. Optionally restrict to office network.
 - Managed identities for API → SQL, API → Web PubSub, everything → Key Vault.
 - Genesys OAuth client: client-credentials grant, least scopes needed for WFM schedules and user presence.
+- Graph: worker identity `AuditLog.Read.All`; device sync runbook identity `Device.ReadWrite.All` (writes only `extensionAttribute1`).
+- Datto RMM: dedicated read-only API user; key and secret in Key Vault.
 
 ## Environments
 
