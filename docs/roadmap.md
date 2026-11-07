@@ -20,7 +20,7 @@ Phases 1–4 make a usable live tool; 5–6 make it smarter.
 - Which Genesys management units cover Metro agents?
 - Source of the agent → home seat mapping: Supervisor Tracker lists, Genesys, or both?
 - Avigilon platform: Alta (cloud) or Unity/ACM (on-prem)?
-- Datto: API access enabled and a read-only API user? Which UDF number is free for `Seat`?
+- Datto: read-only API user created and its keys in Key Vault? (API access enabled and `Seat` = UDF 3, done 2026-11-07.)
 - Do Metro PC hostnames in Datto match their Entra device names?
 - Pilot check: do Windows sign-ins (including Windows Hello unlocks) show up in the Entra sign-in logs for Metro PCs, and how quickly?
 - Seat → supervisor mapping (`seatSupervisors`, from the Floor tab colors): confirm B14–B27 = Jean, D1/D6 and E16–E21 = Kim B. (Edgar C. also has a desk by E16–E21), and whether Syair D. (A1–A13), Noah and Wayne should appear.

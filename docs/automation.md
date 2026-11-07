@@ -58,7 +58,8 @@ Two sources, each doing what it's good at:
   - The first sign-in of the day is reliable. Unlocks are not guaranteed to
     log, and there are no sign-out events, so desk sign-ins prove arrival only.
 - **Which seat: Datto RMM user-defined field.** Each Metro desk PC carries its
-  seat ID in a Datto UDF labelled `Seat` (e.g. `D8`). Datto is the asset
+  seat ID in Datto **UDF 3**, labelled `Seat` (API field `udf.udf3`), e.g. `D8`.
+  Exact floor label, uppercase; blank for spares and PCs not at a numbered desk. Datto is the asset
   record, so moving a PC means changing one field, not renaming the device.
   A sync runbook copies the value to the Entra device object
   (`extensionAttributes.extensionAttribute1`), which:
